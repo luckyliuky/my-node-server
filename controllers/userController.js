@@ -1,23 +1,23 @@
 const User = require('../models/User');
 
 exports.registerUser = async (req, res) => {
-  const { name, email, password, age, isAdmin } = req.query; // 从查询参数中获取数据
+  const { name, tel, password, age, isAdmin } = req.query; // 从查询参数中获取数据
 
-  if (!name || !email || !password || !age) {
-    return res.status(400).json({ code: 'A00001', msg: '缺少必要的字段：name, email, password, age' });
+  if (!name || !tel || !password || !age) {
+    return res.status(200).json({ code: 'A00001', msg: '缺少必要的字段：name, tel, password, age' });
   }
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ tel });
     if (existingUser) {
-      return res.status(409).json({ code: 'A00002', msg: '用户已注册' });
+      return res.status(200).json({ code: 'A00002', msg: '用户已注册' });
     }
 
-    const user = new User({ name, email, password, age, isAdmin });
+    const user = new User({ name, tel, password, age, isAdmin:isAdmin || false });
     await user.save();
-    res.status(201).json({ code: 'A00003', msg: `用户 ${name} 注册成功` });
+    res.status(200).json({ code: 'A00006', msg: `用户 ${name} 注册成功` });
   } catch (error) {
-    res.status(500).json({ code: 'A00004', msg: '注册用户时出错：' + error.message });
+    res.status(200).json({ code: 'A00004', msg: '注册用户时出错：' + error.message });
   }
 };
 
@@ -47,13 +47,13 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.updateUser = async (req, res) => {
-  const { name, email, age } = req.body;
+  const { name, tel, age } = req.body;
   const userId = req.user.id;
 
   try {
     const updateData = {};
     if (name) updateData.name = name;
-    if (email) updateData.email = email;
+    if (tel) updateData.tel = tel;
     if (age) updateData.age = age;
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true });

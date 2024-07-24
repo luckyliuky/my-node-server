@@ -1,5 +1,6 @@
 ### 租房系统
-
+#### 1. 安装依赖包
+npm install
 ```
 my-node-server
 ├─ app.js

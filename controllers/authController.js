@@ -1,24 +1,47 @@
-const User = require('../models/User');
+const axios = require('axios');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const User = require('../models/User');
 
-exports.loginUser = async (req, res) => {
-  const { tel, password } = req.body;
+const getWeChatSession = async (code) => {
+  const { WECHAT_APPID, WECHAT_APPSECRET } = process.env;
+  const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${WECHAT_APPID}&secret=${WECHAT_APPSECRET}&js_code=${code}&grant_type=authorization_code`;
 
-  if (!tel || !password) {
-    return res.status(200).json({ code: 'A00001', msg: '缺少必要的字段：tel, password' });
+  const response = await axios.get(url);
+  return response.data;
+};
+
+exports.wechatLogin = async (req, res) => {
+  const { code } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ code: 'A00001', msg: '缺少微信授权码' });
   }
 
   try {
-    const user = await User.findOne({ tel });
+    // Step 1: Use code to get session_key and openid
+    const { session_key, openid, errcode, errmsg } = await getWeChatSession(code);
 
-    if (!user || user.password !== password) {
-      return res.status(200).json({ code: 'A00004', msg: '无效的登录凭证' });
+    if (errcode) {
+      return res.status(400).json({ code: 'A00004', msg: '获取微信授权信息失败: ' + errmsg });
     }
 
-    const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // Step 2: Check if the user exists in the database
+    let user = await User.findOne({ openid });
+
+    if (!user) {
+      // Create new user if not exists
+      user = new User({
+        openid,
+        isAdmin: false // Default value, can be changed later
+      });
+      await user.save();
+    }
+
+    // Step 3: Generate JWT token
+    const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
     res.status(200).json({ code: 'A00006', msg: '登录成功', data: { token } });
   } catch (error) {
-    res.status(200).json({ code: 'A00004', msg: '登录时出错：' + error.message });
+    res.status(500).json({ code: 'A00004', msg: '微信登录时出错：' + error.message });
   }
 };

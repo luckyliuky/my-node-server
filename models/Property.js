@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const houseSchema = new mongoose.Schema({
   title: {
     type: String,

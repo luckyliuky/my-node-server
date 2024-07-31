@@ -28,12 +28,12 @@ exports.getUserById = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ code: 'A00005', msg: '用户未找到' });
+      return res.status(200).json({ code: 'A00005', msg: '用户未找到' });
     }
 
     res.status(200).json({ code: 'A00006', msg: '获取用户信息成功', data: user });
   } catch (error) {
-    res.status(500).json({ code: 'A00004', msg: '获取用户信息时出错：' + error.message });
+    res.status(200).json({ code: 'A00004', msg: '获取用户信息时出错：' + error.message });
   }
 };
 
@@ -42,7 +42,7 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.find();
     res.status(200).json({ code: 'A00006', msg: '获取所有用户信息成功', data: users });
   } catch (error) {
-    res.status(500).json({ code: 'A00004', msg: '获取所有用户信息时出错：' + error.message });
+    res.status(200).json({ code: 'A00004', msg: '获取所有用户信息时出错：' + error.message });
   }
 };
 
@@ -59,11 +59,11 @@ exports.updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true });
 
     if (!updatedUser) {
-      return res.status(404).json({ code: 'A00005', msg: '用户未找到' });
+      return res.status(200).json({ code: 'A00005', msg: '用户未找到' });
     }
 
     res.status(200).json({ code: 'A00006', msg: `用户 ${updatedUser.name} 信息更新成功`, data: updatedUser });
   } catch (error) {
-    res.status(500).json({ code: 'A00004', msg: '更新用户信息时出错：' + error.message });
+    res.status(200).json({ code: 'A00004', msg: '更新用户信息时出错：' + error.message });
   }
 };

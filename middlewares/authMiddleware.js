@@ -7,16 +7,16 @@ const authMiddleware = (req, res, next) => {
   const token = req.get('Authorization')?.replace('Bearer ', '');
 
   if (!token) {
-    return res.status(401).json({
+    return res.status(200).json({
       code: 'A00004',
-      msg: '未提供令牌或令牌无效'
+      msg: '用户未登录'
     });
   }
 
   if (!JWT_SECRET) {
-    return res.status(500).json({
+    return res.status(200).json({
       code: 'A00007',
-      msg: '服务器配置错误，未设置 JWT_SECRET'
+      msg: '服务器JWT_SECRET错误'
     });
   }
 
@@ -25,9 +25,9 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({
+    return res.status(200).json({
       code: 'A00004',
-      msg: '无效的令牌'
+      msg: '用户未登录'
     });
   }
 };

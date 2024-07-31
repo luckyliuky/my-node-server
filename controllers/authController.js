@@ -14,7 +14,7 @@ exports.wechatLogin = async (req, res) => {
   const { code } = req.body;
 
   if (!code) {
-    return res.status(400).json({ code: 'A00001', msg: '缺少微信授权码' });
+    return res.status(200).json({ code: 'A00001', msg: '缺少微信授权码' });
   }
 
   try {
@@ -22,7 +22,7 @@ exports.wechatLogin = async (req, res) => {
     const { session_key, openid, errcode, errmsg } = await getWeChatSession(code);
 
     if (errcode) {
-      return res.status(400).json({ code: 'A00004', msg: '获取微信授权信息失败: ' + errmsg });
+      return res.status(200).json({ code: 'A00004', msg: '获取微信授权信息失败: ' + errmsg });
     }
 
     // Step 2: Check if the user exists in the database
@@ -42,6 +42,6 @@ exports.wechatLogin = async (req, res) => {
 
     res.status(200).json({ code: 'A00006', msg: '登录成功', data: { token } });
   } catch (error) {
-    res.status(500).json({ code: 'A00004', msg: '微信登录时出错：' + error.message });
+    res.status(200).json({ code: 'A00004', msg: '微信登录时出错：' + error.message });
   }
 };

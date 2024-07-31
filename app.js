@@ -15,6 +15,7 @@ connectDB();
 // 中间件
 app.use(express.json());
 app.use(responseHandler);
+pp.use('/uploads', express.static('uploads'));
 
 // 路由
 app.use('/api/auth', authRoutes);
